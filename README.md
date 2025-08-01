@@ -33,7 +33,7 @@ This project demonstrates a scalable and secure architecture for building a data
 
 ## 🛠️ Getting Started (Local Preview)
 
-Install [Hugo](https://gohugo.io/getting-started/install/) and run:
+Install [Hugo](https://github.com/gohugoio/hugo/releases) and run:
 
 ```bash
 hugo server
