@@ -1,0 +1,148 @@
+[
+{
+	"uri": "//localhost:1313/vi/5-permissions/5.1-registerdata/",
+	"title": "Đăng ký dữ liệu vào Lake Formation",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, bạn sẽ đăng ký đường dẫn S3 chứa dữ liệu thô hoặc đã xử lý vào Lake Formation để quản lý tập trung.\nMục tiêu Đăng ký đường dẫn S3 vào hệ thống Lake Formation Cấp quyền cho Lake Formation truy cập dữ liệu Hướng dẫn Vào Lake Formation \u0026gt; Data lake locations Nhấn [Register location] 3. Nhập đường dẫn S3, hoặc làm theo ảnh:\ns3://your-datalake-bucket/processed/ 4. Chọn IAM role có quyền truy cập Glue và S3\n5. Nhấn Register location\nSau khi đăng ký, đường dẫn S3 sẽ được quản lý theo chính sách phân quyền của Lake Formation.\n"
+},
+{
+	"uri": "//localhost:1313/vi/1-introduce/",
+	"title": "Giới Thiệu",
+	"tags": [],
+	"description": "",
+	"content": "Kiến trúc Data Lake trên AWS Trong kỷ nguyên dữ liệu hiện đại, các tổ chức cần một nền tảng linh hoạt, có khả năng mở rộng và tiết kiệm chi phí để lưu trữ và phân tích dữ liệu từ nhiều nguồn khác nhau. Data Lake Architecture trên nền tảng AWS cung cấp giải pháp tối ưu để hiện thực hóa điều đó.\nTrong kiến trúc này:\nAmazon S3 đóng vai trò là kho lưu trữ trung tâm cho dữ liệu thô và dữ liệu đã xử lý. AWS Glue đảm nhận nhiệm vụ thu thập siêu dữ liệu (metadata), phân tích schema và xử lý ETL (Extract, Transform, Load). AWS Lake Formation giúp kiểm soát quyền truy cập dữ liệu ở cấp độ chi tiết (database, bảng, cột). Amazon Athena và Amazon QuickSight cho phép truy vấn và trực quan hóa dữ liệu một cách nhanh chóng mà không cần hạ tầng máy chủ. Mục tiêu của tài liệu Tài liệu này hướng dẫn người học từng bước triển khai kiến trúc Data Lake trên AWS, bao gồm:\nThiết lập kho lưu trữ dữ liệu trên Amazon S3 Đăng ký quyền quản trị dữ liệu với Lake Formation Tạo Glue Crawler để phân tích schema và catalog dữ liệu Tạo Glue Job để transform và nạp dữ liệu Phân quyền chi tiết sử dụng Lake Formation Thực hiện truy vấn bằng Athena và trực quan hóa với QuickSight Dọn dẹp tài nguyên sau khi hoàn tất Lợi ích khi triển khai Data Lake trên AWS 🔹 Linh hoạt và mở rộng tốt: hỗ trợ lưu trữ dữ liệu cấu trúc, bán cấu trúc, phi cấu trúc. 🔹 Tiết kiệm chi phí: chỉ trả tiền cho dung lượng và truy vấn sử dụng. 🔹 Tự động hóa: tích hợp crawler và job để nhận diện và xử lý dữ liệu. 🔹 Bảo mật mạnh mẽ: sử dụng IAM và Lake Formation để kiểm soát truy cập chi tiết. 🔹 Không cần máy chủ: tận dụng Athena để truy vấn trực tiếp từ S3 mà không cần triển khai hạ tầng. 🔹 Dễ dàng tích hợp BI: kết nối QuickSight trực tiếp đến nguồn dữ liệu trong S3 thông qua Glue Catalog và Athena. Sơ đồ kiến trúc tổng quan 🔍 Trong các chương tiếp theo, bạn sẽ lần lượt xây dựng từng thành phần trong kiến trúc này từ đầu đến khi hoàn chỉnh một hệ thống Data Lake toàn diện.\n"
+},
+{
+	"uri": "//localhost:1313/vi/",
+	"title": "Kiến trúc Data Lake với S3, Lake Formation và Glue",
+	"tags": [],
+	"description": "",
+	"content": "Làm việc với Kiến trúc Data Lake sử dụng S3, Lake Formation và Glue Tổng quan Trong bài hướng dẫn này, bạn sẽ tìm hiểu cách xây dựng kiến trúc Data Lake hiện đại trên nền tảng AWS bằng cách sử dụng các dịch vụ chính như Amazon S3, AWS Lake Formation và AWS Glue. Kiến trúc này cho phép bạn thu thập, phân loại, biến đổi và quản lý quyền truy cập dữ liệu một cách bảo mật và hiệu quả.\nThông qua các bước thực hành, bạn sẽ được tiếp cận với:\nAmazon S3: nơi lưu trữ dữ liệu thô và dữ liệu đã xử lý. AWS Glue: để crawler phát hiện schema và transform dữ liệu. Lake Formation: để quản lý quyền truy cập theo cấp độ bảng, cột. Athena hoặc QuickSight: để trực quan hóa hoặc phân tích dữ liệu sau khi xử lý. Sơ đồ sau minh họa kiến trúc tổng thể của hệ thống Data Lake:\nNội dung hướng dẫn Giới thiệu chung Chuẩn bị môi trường Thu thập và tạo danh mục dữ liệu với Glue Crawler Biến đổi dữ liệu bằng Glue Job Phân quyền truy cập bằng Lake Formation Truy vấn và trực quan hoá dữ liệu với Athena hoặc QuickSight Dọn dẹp tài nguyên "
+},
+{
+	"uri": "//localhost:1313/vi/3-gluecrawler/3.1-createdatabase/",
+	"title": "Tạo Glue Database",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, bạn sẽ tạo một database trong AWS Glue. Cơ sở dữ liệu này đóng vai trò như một danh mục metadata, nơi lưu trữ thông tin về schema và bảng được phát hiện bởi Glue Crawler.\nCác bước thực hiện: Mở AWS Glue Console Truy cập Data Catalog \u0026gt; Databases Nhấn Add database Nhập: Tên database: datalake_db Location (tùy chọn): để trống Nhấn Create database Bạn sẽ thấy cơ sở dữ liệu mới xuất hiện trong danh sách.\nCơ sở dữ liệu này chỉ được sử dụng để lưu trữ metadata chứ không lưu trữ dữ liệu thực tế. Bạn có thể tái sử dụng cùng một cơ sở dữ liệu cho nhiều Glue crawler hoặc Glue job khác nhau. "
+},
+{
+	"uri": "//localhost:1313/vi/4-gluetransform/4.1-createjob/",
+	"title": "Tạo Glue Job",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, bạn sẽ tạo một Glue Job mới bằng AWS Glue Studio. Job này sẽ dùng để biến đổi dữ liệu thô và ghi kết quả sang thư mục khác trên S3.\nMục tiêu Tạo job ETL theo cách trực quan Chỉ định nguồn dữ liệu từ Glue Catalog Định nghĩa đầu ra S3 Cấu hình thông tin cơ bản cho job Hướng dẫn Truy cập AWS Glue Studio từ giao diện AWS Console. 2. Chọn Jobs ở thanh điều hướng bên trái. 3. Nhấn nút màu cam [Create job]. 4. Chọn mẫu: Visual with a source and target, sau đó nhấn [Create].\n5. Trong giao diện tạo job:\nĐặt tên job, ví dụ: transform-population-job Chọn IAM role đã tạo (có quyền với Glue và S3) Giữ nguyên các thiết lập mặc định cho phiên bản Glue, loại worker và bookmark (nếu không có yêu cầu khác) "
+},
+{
+	"uri": "//localhost:1313/vi/2-prerequiste/2.1-creates3/",
+	"title": "Tạo S3 Bucket và Tải Dữ liệu Mẫu",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, bạn sẽ tạo một bucket S3 mới dùng để lưu trữ dữ liệu thô và dữ liệu đã xử lý. Bucket này là thành phần trung tâm trong kiến trúc Data Lake, đóng vai trò nơi lưu trữ đầu vào và đầu ra cho các tiến trình AWS Glue và Lake Formation.\nSau khi hoàn tất, bucket của bạn sẽ có cấu trúc thư mục rõ ràng, hỗ trợ cho cả dữ liệu đầu vào và đầu ra từ các Glue Job.\nMục tiêu: Tạo bucket S3 Tạo các thư mục: raw/, processed/ Tải file dữ liệu mẫu sales_data.csv lên thư mục raw/. 1. Tạo bucket Truy cập AWS S3 Console Nhấn [Create bucket] Chọn vùng AWS (ví dụ: Asia Pacific (Singapore)) Lưu ý : Nếu chưa biết cách thiết lập vùng mặc định thì hãy xem lại hướng dẫn tại đây.\nNhập tên bucket duy nhất toàn cầu, ví dụ: datalake-demo-tenban Giữ nguyên các thiết lập khác mặc định và nhấn Create bucket. 2. Tạo cấu trúc thư mục Mở bucket vừa tạo Nhấn [Create folder] Tạo các thư mục: Tạo thư mục raw/ Tạo thư mục processed/ Các thư mục này sẽ giúp bạn tổ chức dữ liệu để thu thập và chuyển đổi dữ liệu.\n3. Tải lên dữ liệu mẫu Mở thư mục raw/ Nhấn [Upload] → [Add files] Tải lên file sales_data.csv đã tải ở phía trên. Nhấn [Upload] để hoàn tất. Ghi chú\nGhi lại đường dẫn đầy đủ đến file (vd: s3://datalake-demo-tenban/raw/sales_data.csv) để dùng trong bước Glue Crawler. Tránh dùng ký tự in hoa hoặc dấu cách trong tên bucket hoặc thư mục. IAM Role ở Bước 2.3 phải có quyền truy cập bucket này. Tiếp theo Chuyển sang: 2.2 – Tạo IAM Role cho Glue\n"
+},
+{
+	"uri": "//localhost:1313/vi/5-permissions/5.2-setuppermissions/",
+	"title": "Cấu hình phân quyền trong Lake Formation",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, bạn sẽ phân quyền chi tiết cho người dùng hoặc IAM Role nhằm kiểm soát quyền truy cập vào bảng hoặc cột trong Data Lake.\nMục tiêu Cấp quyền truy cập database và bảng trong Glue Catalog Cấu hình phân quyền theo bảng hoặc cột Gán quyền cho IAM user, role hoặc principal của Lake Formation Hướng dẫn Truy cập Lake Formation \u0026gt; Permissions Nhấn [Grant] 3. Chọn đối tượng được cấp quyền: IAM user hoặc role\n4. Chọn loại quyền: Data catalog\n5. Lựa chọn:\nDatabase: ví dụ datalake_demo_db Table: ví dụ raw_raw 6. Chọn loại quyền:\nSELECT, ALTER, DESCRIBE Bật tùy chọn Column-level permissions nếu cần Nhấn Grant Lặp lại để cấp quyền khác nhau cho từng người dùng hoặc vai trò phù hợp.\n"
+},
+{
+	"uri": "//localhost:1313/vi/2-prerequiste/",
+	"title": "Chuẩn bị môi trường",
+	"tags": [],
+	"description": "",
+	"content": "Để triển khai kiến trúc Data Lake trên AWS, người dùng cần cấu hình một số dịch vụ cốt lõi trước khi bắt đầu thu thập và xử lý dữ liệu. Chương này sẽ hướng dẫn bạn thiết lập môi trường cơ bản, bao gồm tạo vùng lưu trữ trên S3, phân quyền truy cập với Lake Formation và tạo vai trò IAM cho Glue.\n✅ Mục tiêu: Tạo S3 Bucket để lưu trữ dữ liệu thô và dữ liệu đã xử lý Cấu hình Lake Formation để quản lý quyền truy cập dữ liệu Tạo IAM Role để AWS Glue có thể truy cập vào S3 và sử dụng Glue Data Catalog Nội dung chi tiết 2.1 – Tạo S3 Bucket và Tải Dữ liệu Mẫu\nHướng dẫn tạo bucket S3 với cấu trúc thư mục raw/, processed/, và tải lên file dữ liệu mẫu. 2.2 – Tạo IAM Role cho Glue\nTạo IAM Role có quyền truy cập S3, Glue, Athena và Lake Formation để phục vụ cho crawler và job sau này. 🔔 Sau khi hoàn tất chương này, bạn đã sẵn sàng để khởi tạo Glue Crawler trong bước tiếp theo.\n"
+},
+{
+	"uri": "//localhost:1313/vi/3-gluecrawler/3.2-createcrawler/",
+	"title": "Tạo Glue Crawler",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, bạn sẽ tạo một Glue Crawler để quét dữ liệu thô trong S3 và đưa metadata (schema) vào Glue Data Catalog.\nHướng dẫn Truy cập AWS Glue Console Menu bên trái, chọn Crawlers Nhấn [Create crawler] Cấu hình crawler cơ bản Name: raw-csv-crawler Nhấn [Next] Chọn nguồn dữ liệu Chọn Data stores Loại: S3 Đường dẫn: s3://tên-bucket-của-bạn/raw/ Nhấn [Next] Chọn IAM Role Role: AWSGlueDataLakeRoleSales hoặc role bạn đã tạo Nhấn [Next] Chọn nơi lưu kết quả Database: datalake_demo_db Prefix (tuỳ chọn): raw_ Nhấn [Next] [Finish] Crawler sẽ quét dữ liệu S3 và phát hiện schema tự động.\nKết quả sẽ được ghi vào Glue Data Catalog dưới dạng bảng.\n"
+},
+{
+	"uri": "//localhost:1313/vi/2-prerequiste/2.2-createiamrole/",
+	"title": "Tạo IAM Role cho Glue",
+	"tags": [],
+	"description": "",
+	"content": "AWS Glue yêu cầu một IAM role có quyền cụ thể để truy cập dữ liệu trong S3, chạy crawler và job, cũng như đăng ký metadata vào Glue Data Catalog và Lake Formation.\nMục tiêu: Tạo IAM role cho Glue Gán các policy cần thiết để truy cập S3, Glue, Athena và Lake Formation Chuẩn bị role để sử dụng cho Glue Crawler và Job 1. Mở IAM Console Truy cập IAM Console Chọn Roles từ menu bên trái Nhấn [Create role] 2. Cấu hình IAM Role Trusted entity: chọn AWS service Chọn Glue làm trường hợp sử dụng Nhấn Next 3. Gán các policy quyền Tìm kiếm và gán các policy sau:\nAWSGlueServiceRole AmazonS3FullAccess (hoặc chỉ định quyền chi tiết hơn nếu cần) AmazonAthenaFullAccess LakeFormationDataAdmin Nhấn Next để tiếp tục. 4. Đặt tên cho role Đặt tên cho role, ví dụ: AWSGlueDataLakeRoleSales Nhấn Create role 5. Sửa Trust Relationship Để cho phép cả Glue và Lake Formation assume role này, bạn cần cập nhật phần Trust relationships như sau: Vào tab Trust relationships \u0026gt; Edit trust policy, và thay toàn bộ nội dung bằng đoạn sau: Copy đoạn mã: { \u0026#34;Version\u0026#34;: \u0026#34;2012-10-17\u0026#34;, \u0026#34;Statement\u0026#34;: [ { \u0026#34;Effect\u0026#34;: \u0026#34;Allow\u0026#34;, \u0026#34;Principal\u0026#34;: { \u0026#34;Service\u0026#34;: \u0026#34;glue.amazonaws.com\u0026#34; }, \u0026#34;Action\u0026#34;: \u0026#34;sts:AssumeRole\u0026#34; }, { \u0026#34;Effect\u0026#34;: \u0026#34;Allow\u0026#34;, \u0026#34;Principal\u0026#34;: { \u0026#34;Service\u0026#34;: \u0026#34;lakeformation.amazonaws.com\u0026#34; }, \u0026#34;Action\u0026#34;: \u0026#34;sts:AssumeRole\u0026#34; } ] } Dán vào policy: Bước này giúp đảm bảo role xuất hiện trong Lake Formation khi đăng ký vị trí S3, cũng như dùng được cho Glue Job hoặc Crawler.\nGhi chú\nRole này cần được chỉ định khi bạn tạo Glue Crawler hoặc Job. Hãy đảm bảo role có quyền truy cập đúng bucket S3 và metadata của Lake Formation. Bạn có thể tinh chỉnh quyền bằng cách dùng các policy tùy chỉnh thay vì FullAccess. Bước tiếp theo Bạn đã sẵn sàng tạo Glue Crawler trong Cấu hình Glue Crawler\n"
+},
+{
+	"uri": "//localhost:1313/vi/4-gluetransform/4.2-transform/",
+	"title": "Thiết kế Pipeline Biến đổi",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, bạn sẽ định nghĩa trực quan các bước biến đổi dữ liệu trong AWS Glue Studio.\nCấu hình nguồn dữ liệu Nhấn vào node Source. Chọn Data source là AWS Glue Data Catalog. 3. Chọn database và table được phát hiện bởi Glue Crawler (ví dụ: raw_raw).\nThêm các bước biến đổi Nhấn + Add node \u0026gt; Transform \u0026gt; chọn ApplyMapping hoặc SelectFields. 2. Bạn có thể:\nĐổi tên cột (vd: pop → population) Chuyển đổi kiểu dữ liệu (vd: từ string → int) Loại bỏ những cột không cần thiết Có thể thêm nhiều bước biến đổi liên tiếp nhau.\nMẹo nhỏ\nXem trước schema sau mỗi bước. Đảm bảo kiểu dữ liệu của các cột phù hợp với schema đầu ra. Sau khi hoàn tất, bạn sẽ tiếp tục đến bước cấu hình node đích (Target).\nCấu hình node đích (Target) Sau khi hoàn tất các bước biến đổi dữ liệu, bạn cần tạo node đích để lưu kết quả ra Amazon S3.\nNhấn vào nút + Add node bên dưới bước biến đổi cuối cùng (ví dụ: ApplyMapping hoặc Change Schema). Chọn Target \u0026gt; Amazon S3. Cấu hình chi tiết node Amazon S3 Sau khi thêm node đích, bạn cần cấu hình các thông số bên panel phải:\nName: Đặt tên cho node đích, ví dụ: S3_output_parquet.\nFormat: Chọn định dạng tệp đầu ra là Parquet (tối ưu hơn CSV).\nCompression type: Chọn Snappy để giảm kích thước tệp.\nS3 target location: Chọn S3 bucket (ví dụ: datalake-demo-yourname). Thêm prefix nếu muốn phân chia thư mục (ví dụ: processed/). Schema: Hệ thống sẽ tự động dùng schema đã được ánh xạ từ bước ApplyMapping. Nhấn Save để lưu job. 💡 Gợi ý: Sử dụng định dạng Parquet với nén Snappy giúp giảm chi phí lưu trữ và tăng hiệu suất truy vấn với Athena.\nSau khi job hoàn tất, bạn có thể truy cập S3 để xác nhận dữ liệu đầu ra đã được lưu đúng vị trí mong muốn.\n"
+},
+{
+	"uri": "//localhost:1313/vi/3-gluecrawler/",
+	"title": "Cấu hình Glue Crawler",
+	"tags": [],
+	"description": "",
+	"content": "Chương 3 – Cấu hình Glue Crawler Trong chương này, bạn sẽ cấu hình các thành phần của AWS Glue để tạo danh mục dữ liệu. Bao gồm tạo Glue Database, cấu hình Crawler để quét dữ liệu thô trong S3 và kiểm tra kết quả.\n📚 Các phần nhỏ 3.1 – Tạo Glue Database 3.2 – Tạo Glue Crawler 3.3 – Chạy và Kiểm Tra Glue Crawler "
+},
+{
+	"uri": "//localhost:1313/vi/3-gluecrawler/3.3-runcrawler/",
+	"title": "Chạy và Kiểm Tra Glue Crawler",
+	"tags": [],
+	"description": "",
+	"content": "Sau khi tạo Glue Crawler, bạn sẽ tiến hành chạy và kiểm tra kết quả trong Glue Data Catalog.\nHướng dẫn Truy cập AWS Glue Console Menu bên trái chọn Crawlers Chọn crawler của bạn (vd: raw-csv-crawler) Nhấn [Run crawler] Chờ trạng thái chuyển sang Ready.\nKiểm tra kết quả: Vào Data Catalog \u0026gt; Tables Kiểm tra các bảng đã được tạo (vd: raw_raw) Nhấn vào bảng để xem: Các cột và kiểu dữ liệu Vị trí dữ liệu trong S3 Thông tin phân vùng (nếu có) Có thể chạy lại crawler bất kỳ lúc nào nếu dữ liệu thay đổi.\nGlue sẽ tự động cập nhật schema nếu dữ liệu có thay đổi cấu trúc.\n"
+},
+{
+	"uri": "//localhost:1313/vi/4-gluetransform/4.3-runandcheck/",
+	"title": "Chạy và Kiểm Tra Job",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, bạn sẽ chạy Glue Job và kiểm tra kết quả trong S3 và Glue Catalog.\nChạy Job Trong Glue Studio, nhấn nút [Run] ở góc phải trên cùng. 2. Chờ job hoàn tất. Có thể theo dõi trạng thái tại tab Jobs \u0026gt; Runs.\nKiểm Tra Kết Quả Sau khi job hoàn tất:\nTruy cập bucket S3 đích (vd: datalake-demo-yourname/processed/) để kiểm tra các file đã được tạo. Trong Glue Data Catalog, vào database chứa bảng đầu ra để xem schema. Tuỳ chọn: Kiểm Tra bằng Athena Mở Amazon Athena Chọn đúng database Chạy truy vấn SQL mẫu: SELECT * FROM \u0026#34;datalake_demo_db\u0026#34;.\u0026#34;raw_raw\u0026#34; limit 10; Việc này giúp xác nhận pipeline ETL của bạn đã hoạt động hoàn chỉnh.\n"
+},
+{
+	"uri": "//localhost:1313/vi/5-permissions/5.3-crossqueryathena/",
+	"title": "Kiểm tra truy vấn từ Athena",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, bạn sẽ kiểm tra hiệu lực của phân quyền trong Lake Formation bằng cách truy vấn bảng đã đăng ký từ Amazon Athena.\nMục tiêu Xác nhận phân quyền trong Lake Formation được áp dụng đúng Đảm bảo các cột/bảng bị giới hạn sẽ không truy cập được Hướng dẫn Mở Amazon Athena 2. Chọn đúng database (vd: datalake_demo_db)\n3. Thử truy vấn sau:\nSELECT * FROM population_summary LIMIT 10; Nếu bạn có đầy đủ quyền, dữ liệu sẽ được trả về. 5. Nếu bị giới hạn quyền (vd: chặn cột), sẽ xuất hiện lỗi như Access Denied.\nBạn có thể thử với nhiều IAM user/role khác nhau để kiểm tra logic phân quyền.\n"
+},
+{
+	"uri": "//localhost:1313/vi/4-gluetransform/",
+	"title": "Biến đổi dữ liệu với AWS Glue Job",
+	"tags": [],
+	"description": "",
+	"content": "Chương 4 – Biến đổi dữ liệu với AWS Glue Job Trong chương này, bạn sẽ sử dụng AWS Glue Studio để tạo và chạy một ETL job có khả năng:\nĐọc dữ liệu thô từ S3 Áp dụng các bước biến đổi như đổi tên cột, ánh xạ, lọc dòng Ghi dữ liệu đã xử lý vào thư mục khác trên S3 với định dạng Parquet Tự động cập nhật metadata đầu ra vào Glue Data Catalog Job này sẽ đóng vai trò trung gian quan trọng giữa dữ liệu gốc và giai đoạn phân tích, giúp chuẩn hoá cấu trúc và nội dung dữ liệu.\n🔍 Các bước trong chương: 4.1 – Tạo Glue Job: Tạo job mới trong Glue Studio. 4.2 – Thiết kế Pipeline Biến đổi: Áp dụng các phép biến đổi dữ liệu. 4.3 – Chạy và Kiểm Tra Job: Thực thi và xác minh kết quả trong S3 và Glue Catalog. Sau chương này, bạn sẽ có dữ liệu sạch sẵn sàng để truy vấn bằng Athena hoặc trực quan hóa bằng QuickSight.\n"
+},
+{
+	"uri": "//localhost:1313/vi/5-permissions/",
+	"title": "Phân quyền truy cập với Lake Formation",
+	"tags": [],
+	"description": "",
+	"content": "Chương 5 – Phân quyền truy cập với Lake Formation Trong chương này, bạn sẽ cấu hình kiểm soát truy cập chi tiết cho hệ thống Data Lake sử dụng AWS Lake Formation. Bạn sẽ đăng ký vị trí lưu trữ S3, cấp quyền truy cập theo bảng hoặc theo cột, và kiểm tra kết quả khi truy vấn.\n🔍 Các bước trong chương: 5.1 – Đăng ký dữ liệu vào Lake Formation 5.2 – Cấu hình phân quyền truy cập 5.3 – Kiểm tra truy vấn từ Athena Kết thúc chương này, hệ thống của bạn sẽ có phân quyền tập trung và an toàn.\n"
+},
+{
+	"uri": "//localhost:1313/vi/6-visualization/",
+	"title": "Truy vấn và trực quan hóa với Athena &amp; QuickSight",
+	"tags": [],
+	"description": "",
+	"content": "Ở bước cuối này, bạn sẽ khai thác giá trị từ Data Lake bằng cách truy vấn và trực quan hóa dữ liệu. Trước tiên, dùng Amazon Athena để chạy truy vấn SQL với dữ liệu đã được xử lý và phân quyền. Sau đó, kết nối Amazon QuickSight để tạo dashboard tương tác.\nPhần 1 – Truy vấn dữ liệu với Athena Mở Amazon Athena 2. Chọn đúng database (vd: datalake_demo_db) 3. Chọn bảng cần truy vấn (vd: raw_raw)\n4. Chạy ví dụ:\nSELECT region, COUNT(orderid) AS total_orders FROM raw_raw GROUP BY region ORDER BY total_orders DESC; Kết quả cho thấy dữ liệu đã ETL và phân quyền đúng cách.\nPhần 2 – Trực quan hóa với QuickSight Vào Amazon QuickSight \u0026gt; Datasets Chọn New dataset \u0026gt; Athena (Tên ví dụ: AQS_demo) Chọn database và bảng tương ứng Nhập dữ liệu (Direct query hoặc SPICE) Tạo biểu đồ: cột, đường, bảng tổng hợp Giờ bạn đã có dashboard trực quan hóa dữ liệu đã xử lý từ hệ thống Data Lake!\n"
+},
+{
+	"uri": "//localhost:1313/vi/7-cleanup/",
+	"title": "",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "//localhost:1313/vi/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "//localhost:1313/vi/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]
