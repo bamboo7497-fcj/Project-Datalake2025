@@ -39,6 +39,6 @@ This document guides you step-by-step to build a complete Data Lake architecture
 
 ## Architecture Overview
 
-![Overall Architecture](/images/datalake-arch-en.png)
+![Overall Architecture](Project-Datalake2025/images/datalake-arch-en.png)
 
 > 🔍 In the upcoming sections, you will build each component of the architecture step-by-step until you complete a fully functional AWS Data Lake system.
